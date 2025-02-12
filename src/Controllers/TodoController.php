@@ -31,7 +31,6 @@ class TodoController extends HomeController
             'message' => 'All Todos List',
             'todos' => $todos
         ];
-        // return $response->withHeader('Content-Type', 'application/json');
         return $this->response($response, $data);
     }
 
@@ -43,11 +42,11 @@ class TodoController extends HomeController
 
         // Validate input
         if (empty($description)) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Description cannot be empty'
-            ]), 400);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 400);
         }
 
         // Get the max position from the existing records
@@ -60,12 +59,12 @@ class TodoController extends HomeController
             'item_position' => $newPosition
         ]);
 
-        $response->getBody()->write(json_encode([
+        $data = [
             'status' => 'success',
             'message' => 'Item added successfully',
             'todo' => $todo
-        ]), 201);
-        return $response->withHeader('Content-Type', 'application/json');
+        ];
+        return $this->response($response, $data, 201);
     }
 
     public function update(Request $request, Response $response, $id)
@@ -76,39 +75,39 @@ class TodoController extends HomeController
 
         // Validate input
         if (empty($newText)) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Description cannot be empty'
-            ]), 400);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 400);
         }
 
         // Find the todo item
         $todo = Todo::find($id)->first();
         if (!$todo) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Todo not found'
-            ]), 404);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 404);
         }
 
         // Update the description
         $todo->description = $newText;
 
         if ($todo->save()) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'success',
                 'message' => 'Item updated successfully',
                 'todo' => $todo
-            ]), 200);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 200);
         } else {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Failed to update item'
-            ]), 500);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 500);
         }
     }
 
@@ -118,28 +117,28 @@ class TodoController extends HomeController
         $todo = Todo::find($id)->first();
 
         if (!$todo) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Todo not found'
-            ]), 404);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 404);
         }
 
         // Mark as done
         $todo->is_done = 1;
 
         if ($todo->save()) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'success',
                 'message' => 'Item marked as done'
-            ]), 200);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 200);
         } else {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Failed to update'
-            ]), 500);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 500);
         }
     }
 
@@ -149,37 +148,37 @@ class TodoController extends HomeController
         $color = trim($data['color'] ?? '');
 
         if (empty($color)) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Color cannot be empty'
-            ]), 400);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 400);
         }
 
         $todo = Todo::find($id)->first();
 
         if (!$todo) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Todo not found'
-            ]), 404);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 404);
         }
 
         $todo->list_color = $color;
 
         if ($todo->save()) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'success',
                 'message' => 'Color updated successfully'
-            ]), 200);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 200);
         } else {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Failed to update color'
-            ]), 500);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 500);
         }
     }
 
@@ -187,11 +186,11 @@ class TodoController extends HomeController
     {
         $data = json_decode($request->getBody()->getContents(), true);
         if (!isset($data["order"]) || !is_array($data["order"])) {
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Invalid request'
-            ]), 400);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 400);
         }
 
         try {
@@ -205,20 +204,20 @@ class TodoController extends HomeController
             // Commit transaction
             DB::commit();
 
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'success',
                 'message' => 'Positions updated'
-            ]));
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 200);
         } catch (\Exception $e) {
             // Rollback transaction on error
             DB::rollBack();
 
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => 'Error: ' . $e->getMessage()
-            ]), 500);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 500);
         }
     }
 
@@ -232,11 +231,11 @@ class TodoController extends HomeController
             $todo = Todo::find($id)->first();
 
             if (!$todo) {
-                $response->getBody()->write(json_encode([
+                $data = [
                     'status' => 'error',
                     'message' => 'Item not found'
-                ]), 404);
-                return $response->withHeader('Content-Type', 'application/json');
+                ];
+                return $this->response($response, $data, 404);
             }
 
             // Get the deleted item's position
@@ -253,18 +252,18 @@ class TodoController extends HomeController
 
             DB::commit();
 
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'success',
                 'message' => 'Task deleted and positions updated'
-            ]), 200);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 200);
         } catch (\Exception $e) {
             DB::rollback();
-            $response->getBody()->write(json_encode([
+            $data = [
                 'status' => 'error',
                 'message' => $e->getMessage()
-            ]), 500);
-            return $response->withHeader('Content-Type', 'application/json');
+            ];
+            return $this->response($response, $data, 500);
         }
     }
 }

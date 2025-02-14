@@ -9,12 +9,11 @@ class Todo extends Model
     protected $table = 'todo_list';
 
     protected $fillable = [
-        'id',
         'description',
         'is_done',
         'item_position',
         'list_color'
     ];
-
+    protected $primaryKey = 'id';
     public $timestamps = false;
 }
